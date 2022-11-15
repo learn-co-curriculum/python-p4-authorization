@@ -117,7 +117,7 @@ refactor our code like so:
 @app.before_request
 def check_if_logged_in:
     if not session['user_id']:
-            return {'error': 'Unauthorized'}, 401
+        return {'error': 'Unauthorized'}, 401
 
 class Document(Resource):
     def get(self, id):
@@ -138,6 +138,67 @@ We've moved our guard clause into its own function and that's it! Request hooks
 in Flask act upon objects that manipulate the `request` context _automatically_.
 This means that if an object is configured to do anything to a request, our
 `before_request` hook will be executed first.
+
+***
+
+## Skipping Filters for Certain Endpoints
+
+What if we wanted to let anyone see a list of documents, but keep the
+`before_request` hook for the `Document` methods? We could do this:
+
+```py
+@app.before_request
+def check_if_logged_in:
+    if not session['user_id'] \
+        and request.endpoint != 'document_list' :
+        return {'error': 'Unauthorized'}, 401
+
+class Document(Resource):
+    def get(self, id):
+
+        document = Document.query.filter(Document.id == id).first()
+        return document.to_dict()
+
+    def patch(self, id):
+
+        # patch code
+
+    def delete(self, id):
+
+        # delete code
+
+class DocumentList(Resource):
+    def get(self):
+        
+        documents = Document.query.all()
+        return [document.to_dict() for document in documents]
+
+api.add_resource(Document, '/documents/<int:id>', endpoint='document')
+api.add_resource(DocumentList, '/documents', endpoint='document_list')
+
+```
+
+This added if/else logic tells Flask to ignore certain resources, defined by a
+string `endpoint`. This is set automatically to the lowercase version of the
+class or function name, but it's often best to be explicit and name it when we
+add our resources.
+
+> **NOTE: Function-based views provide a little more flexibility than we see
+> with Flask-RESTful here. While every function in Flask is awarded a unique
+> `endpoint` value, there is only one per resource (class) in Flask-RESTful.
+> Remember that you can use a conjunction of `api` views and `app` function-
+> based views in each Flask application, and make the choices that best suit
+> your needs!**
+
+***
+
+## Conclusion
+
+To **authorize** a user for specific actions, we can take advantage of the fact
+that all logged in users in our application will have a `user_id` saved in the
+session object. We can use a `before_request` hook to run some code that will
+check the `user_id` in the session and only authorize users to run those
+actions if they are logged in.
 
 ***
 
