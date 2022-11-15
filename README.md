@@ -202,8 +202,41 @@ actions if they are logged in.
 
 ***
 
+## Check For Understanding
+
+Before you move on, make sure you can answer the following questions:
+
+<details>
+  <summary>
+    <em>1. What is the difference between authentication and authorization?</em>
+  </summary>
+
+  <p>Authentication is the process of proving you are who you are- i.e., logging
+     in.</p>
+  <p>Authorization is the process of deciding who gets access to what. This
+     usually includes a check to see if a user is logged in, but it can also
+     involve unique privileges that they have within the app, like which
+     profiles you can view in full on Instagram.</p>
+</details>
+<br/>
+
+<details>
+  <summary>
+    <em>2. Which Flask decorator can we use to add an authorization step
+        before each of the actions in our app?</em>
+  </summary>
+
+  <p>The <code>before_request</code> hook.</p>
+  <p>Remember that conditional statements in your <code>before_request</code>
+     block can whitelist certain views.</p>
+</details>
+<br/>
+
+***
+
 ## Resources
 
-[API - Flask: `before_request(f)`][before]
+- [API - Flask: `before_request(f)`][before]
+- [What is Authorization? - auth0](https://auth0.com/intro-to-iam/what-is-authorization)
 
 [before]: https://flask.palletsprojects.com/en/2.2.x/api/?highlight=before_request#flask.Flask.before_request
