@@ -42,33 +42,37 @@ access certain routes in our application.
 
 ## First Pass: Manual Checks
 
-Let's say we have a `DocumentsController`. Its `show` method looks like this:
+Let's say we have a `Document` resource. Its `get()` method looks like this:
 
-```ruby
-def show
-  document = Document.find(params[:id])
-  render json: document
-end
+```py
+class Document(Resource):
+    def get(self, id):
+        document = Document.query.filter(Document.id == id).first()
+        return document.to_dict()
+
 ```
 
 Now let's add a new requirement: documents should only be shown to users when
 they're logged in. From a technical perspective, what does it actually mean for
 a user to _log in_? When a user logs in, all we are doing is using cookies to
-add their `:user_id` to the `session` hash.
+add their `user_id` to the `session` object.
 
 The first thing you might do is to add a **guard clause** as the first line of
-`DocumentsController#show`:
+`Document.get()`:
 
-```ruby
-def show
-  return render json: { error: "Not authorized" }, status: :unauthorized unless session.include? :user_id
-  document = Document.find(params[:id])
-  render json: document
-end
+```py
+class Document(Resource):
+    def get(self, id):
+        
+        if not session['user_id']:
+            return {'error': 'Unauthorized'}, 401
+
+        document = Document.query.filter(Document.id == id).first()
+        return document.to_dict()
+
 ```
 
-Unless the session includes `:user_id`, we return an error. `status:
-:unauthorized` will return the specified HTTP status code. In this case, if a
+Unless the session includes `user_id`, we return an error. In this case, if a
 user isn't logged in, we return `401 Unauthorized`.
 
 ***
