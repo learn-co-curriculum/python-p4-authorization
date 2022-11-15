@@ -77,7 +77,72 @@ user isn't logged in, we return `401 Unauthorized`.
 
 ***
 
+## Refactor
+
+This code works fine, so you use it in a few places. Now your
+`Document` resource looks like this:
+
+```py
+class Document(Resource):
+    def get(self, id):
+        
+        if not session['user_id']:
+            return {'error': 'Unauthorized'}, 401
+
+        document = Document.query.filter(Document.id == id).first()
+        return document.to_dict()
+
+    def patch(self, id):
+
+        if not session['user_id']:
+            return {'error': 'Unauthorized'}, 401
+
+        # patch code
+
+    def delete(self, id):
+
+        if not session['user_id']:
+            return {'error': 'Unauthorized'}, 401
+
+        # delete code
+```
+
+That doesn't look so DRY. Wouldn't it be great if there were a way to ask Flask
+to run some code **before** any **action**?
+
+Fortunately, Flask gives us a solution: [`before_request`][before]. We can
+refactor our code like so:
+
+```py
+@app.before_request
+def check_if_logged_in:
+    if not session['user_id']:
+            return {'error': 'Unauthorized'}, 401
+
+class Document(Resource):
+    def get(self, id):
+
+        document = Document.query.filter(Document.id == id).first()
+        return document.to_dict()
+
+    def patch(self, id):
+
+        # patch code
+
+    def delete(self, id):
+
+        # delete code
+```
+
+We've moved our guard clause into its own function and that's it! Request hooks
+in Flask act upon objects that manipulate the `request` context _automatically_.
+This means that if an object is configured to do anything to a request, our
+`before_request` hook will be executed first.
+
+***
+
 ## Resources
 
-- [Introduction to Identity and Access Management (IAM) - auth0](https://auth0.com/docs/get-started/identity-fundamentals/identity-and-access-management)
-- [Flask-Login](https://flask-login.readthedocs.io/en/latest/)
+[API - Flask: `before_request(f)`][before]
+
+[before]: https://flask.palletsprojects.com/en/2.2.x/api/?highlight=before_request#flask.Flask.before_request
