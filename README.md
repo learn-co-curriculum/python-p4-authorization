@@ -183,13 +183,6 @@ string `endpoint`. This is set automatically to the lowercase version of the
 class or function name, but it's often best to be explicit and name it when we
 add our resources.
 
-> **NOTE: Function-based views provide a little more flexibility than we see
-> with Flask-RESTful here. While every function in Flask is awarded a unique
-> `endpoint` value, there is only one per resource (class) in Flask-RESTful.
-> Remember that you can use a conjunction of `api` views and `app` function-
-> based views in each Flask application, and make the choices that best suit
-> your needs!**
-
 ***
 
 ## Conclusion
