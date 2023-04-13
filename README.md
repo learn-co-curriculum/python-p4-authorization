@@ -115,7 +115,7 @@ refactor our code like so:
 
 ```py
 @app.before_request
-def check_if_logged_in:
+def check_if_logged_in():
     if not session['user_id']:
         return {'error': 'Unauthorized'}, 401
 
@@ -148,7 +148,7 @@ What if we wanted to let anyone see a list of documents, but keep the
 
 ```py
 @app.before_request
-def check_if_logged_in:
+def check_if_logged_in():
     if not session['user_id'] \
         and request.endpoint != 'document_list' :
         return {'error': 'Unauthorized'}, 401
